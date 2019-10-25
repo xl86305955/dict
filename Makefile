@@ -74,5 +74,6 @@ clean:
 	$(RM) $(deps)
 	$(RM) bench_cpy.txt bench_ref.txt ref.txt cpy.txt
 	$(RM) *.csv
+	$(RM) *.png
 
 -include $(deps)
