@@ -36,7 +36,8 @@ int main(int argc, char **argv)
     char word[WRDMAX] = "";
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
-    int rtn = 0, idx = 0, sidx = 0;
+    int idx = 0, sidx = 0;
+    // int rtn = 0;
     double t1, t2;
 
     FILE *fp = fopen(IN_FILE, "r");
@@ -52,17 +53,39 @@ int main(int argc, char **argv)
     /* memory pool */
     char *pool = (char *) malloc(poolsize * sizeof(char));
     char *Top = pool;
-    while ((rtn = fscanf(fp, "%s", Top)) != EOF) {
+
+
+    char buf[WORDMAX];
+
+    while (fgets(buf, WORDMAX, fp)) {
+        char *token = ",";
+        strcpy(Top, strtok(buf, token));
+        rmcrlf(Top);
+        char *p = Top;
         /* insert reference to each string */
-        if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
+        if (!tst_ins_del(&root, p, INS, REF)) { /* fail to insert */
             fprintf(stderr, "error: memory exhausted, tst_insert.\n");
             fclose(fp);
             return 1;
+        } else { /* update bloom filter */
+            bloom_add(bloom, Top);
         }
-        bloom_add(bloom, Top);
         idx++;
-        Top += strlen(Top) + 1;
+
+        Top += (strlen(Top) + 1);
     }
+    //    while ((rtn = fscanf(fp, "%s", Top)) != EOF) {
+    //          insert reference to each string
+    //         if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
+    //            fprintf(stderr, "error: memory exhausted, tst_insert.\n");
+    //            fclose(fp);
+    //            return 1;
+    //        }
+    //        bloom_add(bloom, Top);
+    //        idx++;
+    //        Top += strlen(Top) + 1;
+    //    }
+    //
     t2 = tvgetf();
     fclose(fp);
     printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2 - t1);
