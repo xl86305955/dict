@@ -36,7 +36,8 @@ int main(int argc, char **argv)
     char word[WRDMAX] = "";
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
-    int rtn = 0, idx = 0, sidx = 0;
+    int idx = 0, sidx = 0;
+    // int rtn = 0;
     double t1, t2;
 
     FILE *fp = fopen(IN_FILE, "r");
@@ -50,15 +51,20 @@ int main(int argc, char **argv)
 
     bloom_t bloom = bloom_create(TableSize);
 
-    while ((rtn = fscanf(fp, "%s", word)) != EOF) {
-        if (!tst_ins_del(&root, word, INS, CPY)) {
+    char buf[WRDMAX];
+    while (fgets(buf, WORDMAX, fp)) {
+        char *token = ",";
+        char *s = strtok(buf, token);
+        char *p = s;
+        if (!tst_ins_del(&root, p, INS, CPY)) {
             fprintf(stderr, "error: memory exhausted, tst_insert.\n");
             fclose(fp);
             return 1;
         }
-        bloom_add(bloom, word);
+        bloom_add(bloom, p);
         idx++;
     }
+
     t2 = tvgetf();
 
     fclose(fp);
