@@ -1,5 +1,7 @@
 TESTS = test_cpy test_ref
 
+BENCH_FILE = bench_cpy.txt bench_ref.txt
+
 TEST_DATA = s Tai
 
 CFLAGS = -O0 -Wall -Werror -g
@@ -55,9 +57,6 @@ bench_file: $(TESTS)
 	./test_cpy --bench > bench_cpy.txt
 	./test_ref --bench > bench_ref.txt
 
-#bench_ref.txt: test_ref
-#	./test_ref --bench
-
 bench: $(TESTS)
 	@for test in $(TESTS); do \
 	    echo -n "$$test => "; \
@@ -76,8 +75,10 @@ plot: $(TESTS)
 	perf record -o ref_perf.data -e cpu-cycles ./test_ref --bench					./test_ref --bench $(TEST_DATA)\
 		| grep 'ternary_tree, loaded 93827 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
-	gnuplot scripts/runtime*.gp
-	eog runtime*.png        
+
+plot_pt: $(BENCH_FILE)
+	gnuplot scripts/runtimept.gp
+	eog runtime2.png
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
