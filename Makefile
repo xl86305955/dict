@@ -2,6 +2,8 @@ TESTS = test_cpy test_ref
 
 BENCH_FILE = bench_cpy.txt bench_ref.txt
 
+PERF_PREFILE = _perf_cpy.txt _perf_ref.txt 
+
 PERF_FILE = perf_cpy.txt perf_ref.txt
 
 TEST_DATA = s Tai
@@ -47,16 +49,20 @@ test_%: test_%.o $(OBJS_LIB)
 
 test:  $(TESTS)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
-	perf stat --repeat 100 -o perf_cpy.txt \
+	perf stat --repeat 100 -o _perf_cpy.txt \
                 -e cache-misses,cache-references,instructions,cycles \
         		        ./test_cpy --bench $(TEST_DATA) 
-	perf stat --repeat 100 -o perf_ref.txt \
+	perf stat --repeat 100 -o _perf_ref.txt \
                 -e cache-misses,cache-references,instructions,cycles \
 				./test_ref --bench $(TEST_DATA)
 
-perf: $(PERF_FILE)
-	grep -Eo '[0-9]+\,+[0-9]+\,*[0-9]+' perf_cpy.txt > _perf_cpy.txt
-	grep -Eo '[0-9]+\,+[0-9]+\,*[0-9]+' perf_ref.txt > _perf_ref.txt
+perf: $(PERF_PREFILE)
+	grep -Eo '[0-9]+\,+[0-9]+\,*[0-9]+' _perf_cpy.txt  \
+	| sed 's/,//g'	\
+	> perf_cpy.txt
+	grep -Eo '[0-9]+\,+[0-9]+\,*[0-9]+' _perf_ref.txt \
+	| sed 's/,//g' \
+	> perf_ref.txt
 
 bench_file: $(TESTS)
 	./test_cpy --bench > bench_cpy.txt
@@ -93,7 +99,7 @@ plot_pt: $(BENCH_FILE)
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
-	$(RM) bench_cpy.txt bench_ref.txt ref.txt cpy.txt perf_cpy.txt perf_ref.txt
+	$(RM) $(BENCH_FILE) ref.txt cpy.txt $(PERF_PREFILE) $(PERF_FILE)
 	$(RM) *.csv
 	$(RM) *.png
 
