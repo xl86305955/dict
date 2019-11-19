@@ -42,6 +42,7 @@ test_%: test_%.o $(OBJS_LIB)
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
 test:  $(TESTS)
+	rm -f cpy.txt ref.txt
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
@@ -49,6 +50,13 @@ test:  $(TESTS)
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
 				./test_ref --bench $(TEST_DATA)
+
+bench_file: $(TESTS)
+	./test_cpy --bench > bench_cpy.txt
+	./test_ref --bench > bench_ref.txt
+
+#bench_ref.txt: test_ref
+#	./test_ref --bench
 
 bench: $(TESTS)
 	@for test in $(TESTS); do \
@@ -61,14 +69,15 @@ plot: $(TESTS)
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
                 ./test_cpy --bench $(TEST_DATA) \
-		| grep 'ternary_tree, loaded 259112 words'\
+		| grep 'ternary_tree, loaded 93827 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > cpy_data.csv
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-				./test_ref --bench $(TEST_DATA)\
-		| grep 'ternary_tree, loaded 259112 words'\
+	perf record -o ref_perf.data -e cpu-cycles ./test_ref --bench					./test_ref --bench $(TEST_DATA)\
+		| grep 'ternary_tree, loaded 93827 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
-
+	gnuplot scripts/runtime*.gp
+	eog runtime*.png        
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
