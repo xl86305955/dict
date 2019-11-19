@@ -96,6 +96,10 @@ plot_output: output.txt
 plot_pt: $(BENCH_FILE)
 	gnuplot scripts/runtimept.gp
 	eog runtime2.png
+
+plot_3: $(BENCH_FILE)
+	gnuplot scripts/runtime3.gp
+	eog runtime3.png
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
