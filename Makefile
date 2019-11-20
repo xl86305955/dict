@@ -89,6 +89,18 @@ plot: $(TESTS)
 		| grep 'ternary_tree, loaded 93827 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
 
+plot_all: output.txt $(BENCH_FILE) $(PERF_FILE)
+	gnuplot scripts/runtime.gp 
+	gnuplot scripts/runtimept.gp
+	gnuplot scripts/runtime3.gp
+	gnuplot scripts/runtime4.gp
+	gnuplot scripts/perf.gp
+	eog runtime.png& 
+	eog runtime2.png&
+	eog runtime3.png&
+	eog runtime4.png&
+	eog perf_stat.png&
+
 plot_output: output.txt
 	gnuplot scripts/runtime.gp
 	eog runtime.png
@@ -100,6 +112,15 @@ plot_pt: $(BENCH_FILE)
 plot_3: $(BENCH_FILE)
 	gnuplot scripts/runtime3.gp
 	eog runtime3.png
+
+plot_4: $(BENCH_FILE)
+	gnuplot scripts/runtime4.gp
+	eog runtime4.png
+
+plot_perf: $(PERF_FILE)
+	gnuplot scripts/perf.gp
+	eog perf_stat.png
+
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
