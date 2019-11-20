@@ -1,0 +1,12 @@
+# started on Thu Nov 21 00:05:31 2019
+
+
+ Performance counter stats for './test_cpy --bench s Tai' (100 runs):
+
+          390,4553      cache-misses              #   44.300 % of all cache refs      ( +-  0.65% )
+          881,3897      cache-references                                              ( +-  0.44% )
+       3,9369,3523      instructions              #    1.11  insn per cycle           ( +-  0.01% )
+       3,5600,1910      cycles                                                        ( +-  0.28% )
+
+       0.083015646 seconds time elapsed                                          ( +-  1.17% )
+
